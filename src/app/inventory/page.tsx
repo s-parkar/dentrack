@@ -548,6 +548,242 @@ function BulkAddModal({
 }
 
 // ============================================================
+// BATCH STOCK ADJUSTMENT MODAL (+ / - MULTIPLE ITEMS AT ONCE)
+// ============================================================
+interface BatchAdjustModalProps {
+  open: boolean;
+  onClose: () => void;
+  inventoryList: InventoryItem[];
+}
+
+function BatchStockAdjustModal({ open, onClose, inventoryList }: BatchAdjustModalProps) {
+  const { addStockMovement } = useApp();
+  const [type, setType] = useState<'IN' | 'OUT'>('IN');
+  const [filterSearch, setFilterSearch] = useState('');
+  const [reason, setReason] = useState('');
+  const [qtyChanges, setQtyChanges] = useState<Record<string, number>>({});
+
+  if (!open) return null;
+
+  const handleQtyChange = (itemId: string, val: number) => {
+    setQtyChanges((prev) => ({
+      ...prev,
+      [itemId]: Math.max(0, val),
+    }));
+  };
+
+  const filteredItems = inventoryList.filter(
+    (i) =>
+      i.name.toLowerCase().includes(filterSearch.toLowerCase()) ||
+      i.brand.toLowerCase().includes(filterSearch.toLowerCase()) ||
+      i.category.toLowerCase().includes(filterSearch.toLowerCase())
+  );
+
+  const modifiedCount = Object.values(qtyChanges).filter((v) => v > 0).length;
+
+  const handleSaveBatch = () => {
+    if (modifiedCount === 0) return;
+
+    Object.entries(qtyChanges).forEach(([itemId, qty]) => {
+      if (qty > 0) {
+        addStockMovement({
+          itemId,
+          type,
+          quantity: qty,
+          reason: reason.trim() || (type === 'IN' ? 'Batch Stock Restock' : 'Batch Clinical Usage'),
+          date: new Date().toISOString(),
+          performedBy: 'Attending Staff',
+        });
+      }
+    });
+
+    onClose();
+  };
+
+  return (
+    <>
+      <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40" onClick={onClose} />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
+        <div
+          className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0 bg-slate-50 rounded-t-2xl">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 bg-sky-50 rounded-xl flex items-center justify-center border border-sky-200">
+                <Layers className="w-5 h-5 text-sky-600" />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold text-slate-900">Batch Stock Adjustment (+ / -)</h2>
+                <p className="text-xs text-slate-500">Restock or consume multiple stock items simultaneously</p>
+              </div>
+            </div>
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-700 p-1">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Mode & Reason Bar */}
+          <div className="p-4 sm:px-6 border-b border-slate-100 bg-white space-y-3 shrink-0">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              {/* Type Toggle */}
+              <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
+                <button
+                  onClick={() => setType('IN')}
+                  className={cn(
+                    'flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold transition-all',
+                    type === 'IN'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  )}
+                >
+                  <ArrowDownRight className="w-4 h-4" />
+                  <span>Restock (+IN)</span>
+                </button>
+                <button
+                  onClick={() => setType('OUT')}
+                  className={cn(
+                    'flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold transition-all',
+                    type === 'OUT'
+                      ? 'bg-rose-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  )}
+                >
+                  <ArrowUpRight className="w-4 h-4" />
+                  <span>Consume (-OUT)</span>
+                </button>
+              </div>
+
+              {/* Search & Reason */}
+              <div className="flex items-center gap-2 flex-1">
+                <input
+                  type="text"
+                  value={filterSearch}
+                  onChange={(e) => setFilterSearch(e.target.value)}
+                  placeholder="Filter stock items..."
+                  className="text-xs border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 text-slate-800 focus:outline-none focus:bg-white focus:border-sky-400 flex-1"
+                />
+                <input
+                  type="text"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder={type === 'IN' ? 'Reason e.g. Shipment Invoice #881' : 'Reason e.g. Surgery Kit Usage'}
+                  className="text-xs border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 text-slate-800 focus:outline-none focus:bg-white focus:border-sky-400 flex-1"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Items List Grid */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-2">
+            <div className="border border-slate-200 rounded-xl overflow-hidden">
+              <table className="w-full text-xs">
+                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold">
+                  <tr>
+                    <th className="text-left px-4 py-2.5">Item Name</th>
+                    <th className="text-left px-4 py-2.5">Category</th>
+                    <th className="text-center px-4 py-2.5">Current Stock</th>
+                    <th className="text-center px-4 py-2.5">Adjustment Quantity</th>
+                    <th className="text-right px-4 py-2.5">New Stock Level</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredItems.map((item) => {
+                    const adj = qtyChanges[item.id] || 0;
+                    const newStock = type === 'IN' ? item.quantityOnHand + adj : Math.max(0, item.quantityOnHand - adj);
+                    const isModified = adj > 0;
+
+                    return (
+                      <tr key={item.id} className={cn('transition-colors', isModified ? 'bg-sky-50/40' : 'hover:bg-slate-50/50')}>
+                        <td className="px-4 py-2.5">
+                          <p className="font-semibold text-slate-900">{item.name}</p>
+                          <p className="text-[10px] text-slate-500">{item.brand}</p>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className="px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-700 font-medium">
+                            {item.category}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5 text-center font-semibold text-slate-700">
+                          {item.quantityOnHand} {item.unit}s
+                        </td>
+                        <td className="px-4 py-2.5 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => handleQtyChange(item.id, Math.max(0, adj - 1))}
+                              className="w-7 h-7 rounded border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold"
+                            >
+                              -
+                            </button>
+                            <input
+                              type="number"
+                              min="0"
+                              value={adj || ''}
+                              onChange={(e) => handleQtyChange(item.id, Number(e.target.value))}
+                              placeholder="0"
+                              className="w-16 text-center text-xs font-bold border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:border-sky-400"
+                            />
+                            <button
+                              onClick={() => handleQtyChange(item.id, adj + 1)}
+                              className="w-7 h-7 rounded border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold"
+                            >
+                              +
+                            </button>
+                            <button
+                              onClick={() => handleQtyChange(item.id, adj + 10)}
+                              className="text-[10px] font-bold px-1.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 ml-1"
+                            >
+                              +10
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5 text-right font-extrabold text-slate-900">
+                          <span className={cn(isModified ? (type === 'IN' ? 'text-emerald-600' : 'text-rose-600') : '')}>
+                            {newStock} {item.unit}s
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between shrink-0 rounded-b-2xl">
+            <span className="text-xs text-slate-500">
+              {modifiedCount} item{modifiedCount !== 1 ? 's' : ''} set for batch {type === 'IN' ? 'restock (+)' : 'consumption (-)'}.
+            </span>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-medium hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveBatch}
+                disabled={modifiedCount === 0}
+                className={cn(
+                  'flex items-center gap-1.5 px-5 py-2 text-white text-xs font-semibold rounded-xl shadow-sm transition-all disabled:opacity-40',
+                  type === 'IN' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
+                )}
+              >
+                <Check className="w-4 h-4" />
+                Apply Batch {type === 'IN' ? 'Restock (+)' : 'Consume (-)'} ({modifiedCount})
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ============================================================
 // MAIN INVENTORY PAGE WITH CARDS & STEPPER CONTROLS
 // ============================================================
 export default function InventoryPage() {
@@ -557,6 +793,7 @@ export default function InventoryPage() {
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [modalOpen, setModalOpen] = useState(false);
   const [bulkModalOpen, setBulkModalOpen] = useState(false);
+  const [batchAdjustOpen, setBatchAdjustOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
   const [customCategories, setCustomCategories] = useState<string[]>([]);
@@ -607,12 +844,21 @@ export default function InventoryPage() {
       actions={
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setBatchAdjustOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-xl transition-colors shadow-2xs"
+          >
+            <Layers className="w-4 h-4 text-emerald-600" />
+            <span>Batch Stock (+ / -)</span>
+          </button>
+
+          <button
             onClick={() => setBulkModalOpen(true)}
             className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl transition-colors shadow-2xs"
           >
             <Upload className="w-4 h-4 text-sky-600" />
-            <span>Bulk Add</span>
+            <span>Bulk Add Items</span>
           </button>
+
           <button
             onClick={() => {
               setEditingItem(null);
@@ -915,6 +1161,12 @@ export default function InventoryPage() {
         open={bulkModalOpen}
         onClose={() => setBulkModalOpen(false)}
         categoriesList={allCategories}
+      />
+
+      <BatchStockAdjustModal
+        open={batchAdjustOpen}
+        onClose={() => setBatchAdjustOpen(false)}
+        inventoryList={inventory}
       />
     </AppShell>
   );
