@@ -4,13 +4,14 @@ import { useState } from 'react';
 import AppShell from '@/components/layout/AppShell';
 import PatientDrawer from '@/components/patients/PatientDrawer';
 import ConsentFormModal from '@/components/patients/ConsentFormModal';
+import PrintConsentsModal from '@/components/patients/PrintConsentsModal';
 import Odontogram from '@/components/odontogram/Odontogram';
 import { useApp } from '@/lib/store';
 import { Patient, TreatmentItemStatus } from '@/lib/types';
 import { formatDate } from '@/lib/utils';
 import {
   UserPlus, Search, ChevronRight, AlertCircle, Stethoscope, Phone, X, User,
-  ArrowLeft, FileText, Plus, ShieldCheck, CheckCircle2, PenTool
+  ArrowLeft, FileText, Plus, ShieldCheck, CheckCircle2, PenTool, Printer
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -32,6 +33,7 @@ export default function PatientsPage() {
   const [search, setSearch] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [consentModal, setConsentModal] = useState(false);
+  const [printConsentsOpen, setPrintConsentsOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [activeTab, setActiveTab] = useState<PatientTab>('info');
 
@@ -351,13 +353,25 @@ export default function PatientsPage() {
                         </p>
                       </div>
 
-                      <button
-                        onClick={() => setConsentModal(true)}
-                        className="flex items-center justify-center gap-1.5 px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm shrink-0"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Sign New Consent</span>
-                      </button>
+                      <div className="flex items-center gap-2 self-start sm:self-auto">
+                        {getPatientConsentForms(selectedPatient.id).length > 0 && (
+                          <button
+                            onClick={() => setPrintConsentsOpen(true)}
+                            className="flex items-center justify-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg transition-colors shadow-xs shrink-0"
+                          >
+                            <Printer className="w-4 h-4 text-slate-600" />
+                            <span>Print All Consents</span>
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => setConsentModal(true)}
+                          className="flex items-center justify-center gap-1.5 px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm shrink-0"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Sign New Consent</span>
+                        </button>
+                      </div>
                     </div>
 
                     {getPatientConsentForms(selectedPatient.id).length === 0 ? (
@@ -438,12 +452,20 @@ export default function PatientsPage() {
       />
 
       {selectedPatient && (
-        <ConsentFormModal
-          open={consentModal}
-          onClose={() => setConsentModal(false)}
-          patientId={selectedPatient.id}
-          patientName={selectedPatient.name}
-        />
+        <>
+          <ConsentFormModal
+            open={consentModal}
+            onClose={() => setConsentModal(false)}
+            patientId={selectedPatient.id}
+            patientName={selectedPatient.name}
+          />
+          <PrintConsentsModal
+            open={printConsentsOpen}
+            onClose={() => setPrintConsentsOpen(false)}
+            patient={selectedPatient}
+            consentForms={getPatientConsentForms(selectedPatient.id)}
+          />
+        </>
       )}
     </AppShell>
   );
