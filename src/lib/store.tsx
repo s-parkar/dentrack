@@ -6,6 +6,7 @@ import {
   TreatmentPlan, TreatmentPlanItem, Prescription, LabWorkOrder,
   InventoryItem, StockMovement, ImplantRecord, OrthoCase,
   Recall, ToothState, TreatmentPackage, PatientDocument,
+  SignedConsentForm,
 } from './types';
 import {
   MOCK_PATIENTS, MOCK_APPOINTMENTS, MOCK_INVOICES, MOCK_ACTIVITY,
@@ -31,6 +32,7 @@ interface AppState {
   recalls: Recall[];
   packages: TreatmentPackage[];
   documents: PatientDocument[];
+  consentForms: SignedConsentForm[];
 }
 
 interface AppContextValue extends AppState {
@@ -102,6 +104,10 @@ interface AppContextValue extends AppState {
   addDocument: (doc: Omit<PatientDocument, 'id' | 'uploadedAt'>) => PatientDocument;
   getPatientDocuments: (patientId: string) => PatientDocument[];
 
+  // Consent Forms
+  addSignedConsentForm: (form: Omit<SignedConsentForm, 'id' | 'signedAt'>) => SignedConsentForm;
+  getPatientConsentForms: (patientId: string) => SignedConsentForm[];
+
   // Activity
   addActivity: (item: Omit<ActivityItem, 'id' | 'timestamp'>) => void;
 }
@@ -125,6 +131,7 @@ const INITIAL_STATE: AppState = {
   recalls: MOCK_RECALLS,
   packages: MOCK_PACKAGES,
   documents: [],
+  consentForms: [],
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -373,6 +380,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const getPatientDocuments = useCallback((patientId: string) => state.documents.filter((d) => d.patientId === patientId), [state.documents]);
 
+  // ── Consent Forms ─────────────────────────────────────────────────────────
+  const addSignedConsentForm = useCallback((form: Omit<SignedConsentForm, 'id' | 'signedAt'>): SignedConsentForm => {
+    const newForm: SignedConsentForm = { ...form, id: generateId('csnt'), signedAt: new Date().toISOString() };
+    setState((s) => ({ ...s, consentForms: [...s.consentForms, newForm] }));
+    const patient = state.patients.find((p) => p.id === form.patientId);
+    addActivity({ type: 'record_added', message: `Signed Consent Form (${form.title}) recorded for ${patient?.name ?? 'Patient'}` });
+    return newForm;
+  }, [state.patients, addActivity]);
+
+  const getPatientConsentForms = useCallback((patientId: string) => state.consentForms.filter((c) => c.patientId === patientId), [state.consentForms]);
+
   const value: AppContextValue = {
     ...state,
     addPatient, updatePatient, updatePatientTeeth, getPatient, deletePatient,
@@ -387,6 +405,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addOrthoCase, updateOrthoCase, getPatientOrthoCase,
     addRecall, updateRecall, getDueRecalls,
     addDocument, getPatientDocuments,
+    addSignedConsentForm, getPatientConsentForms,
     addActivity,
   };
 

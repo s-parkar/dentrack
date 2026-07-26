@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import AppShell from '@/components/layout/AppShell';
 import PatientDrawer from '@/components/patients/PatientDrawer';
+import ConsentFormModal from '@/components/patients/ConsentFormModal';
 import Odontogram from '@/components/odontogram/Odontogram';
 import { useApp } from '@/lib/store';
 import { Patient, TreatmentItemStatus } from '@/lib/types';
 import { formatDate } from '@/lib/utils';
 import {
   UserPlus, Search, ChevronRight, AlertCircle, Stethoscope, Phone, X, User,
-  ArrowLeft
+  ArrowLeft, FileText, Plus, ShieldCheck, CheckCircle2, PenTool
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,12 +25,13 @@ const TAG_COLORS: Record<string, string> = {
   'Latex Allergy': 'bg-yellow-50 text-yellow-700 border-yellow-200',
 };
 
-type PatientTab = 'info' | 'odontogram' | 'edr' | 'treatment';
+type PatientTab = 'info' | 'odontogram' | 'edr' | 'treatment' | 'consents';
 
 export default function PatientsPage() {
-  const { patients, appointments, clinicalRecords, treatmentPlans, updatePatientTeeth, updateTreatmentPlanItem } = useApp();
+  const { patients, appointments, clinicalRecords, treatmentPlans, updatePatientTeeth, updateTreatmentPlanItem, getPatientConsentForms } = useApp();
   const [search, setSearch] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [consentModal, setConsentModal] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [activeTab, setActiveTab] = useState<PatientTab>('info');
 
@@ -194,17 +196,19 @@ export default function PatientsPage() {
                   { id: 'odontogram', label: 'Tooth Chart' },
                   { id: 'edr', label: 'EDR Notes' },
                   { id: 'treatment', label: 'Treatment Plan' },
+                  { id: 'consents', label: 'Consent Forms' },
                 ].map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as PatientTab)}
                     className={cn(
-                      'px-3 sm:px-4 py-3 text-xs sm:text-[13px] font-medium border-b-2 transition-colors shrink-0',
+                      'px-3 sm:px-4 py-3 text-xs sm:text-[13px] font-medium border-b-2 transition-colors shrink-0 flex items-center gap-1.5',
                       activeTab === tab.id
                         ? 'border-sky-500 text-sky-600'
                         : 'border-transparent text-slate-500 hover:text-slate-700'
                     )}
                   >
+                    {tab.id === 'consents' && <FileText className="w-3.5 h-3.5" />}
                     {tab.label}
                   </button>
                 ))}
@@ -229,6 +233,19 @@ export default function PatientsPage() {
                         </div>
                       ))}
                     </div>
+
+                    {/* Medical Notes Text Box */}
+                    {selectedPatient.medicalNotes && (
+                      <div className="bg-amber-50/60 rounded-xl p-4 border border-amber-200/80 space-y-1">
+                        <p className="text-[11px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                          <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                          Medical Notes &amp; Clinical Details
+                        </p>
+                        <p className="text-xs text-amber-950 leading-relaxed font-medium">
+                          {selectedPatient.medicalNotes}
+                        </p>
+                      </div>
+                    )}
 
                     <div>
                       <h3 className="text-[13px] font-semibold text-slate-700 mb-2">Appointment History</h3>
@@ -321,6 +338,92 @@ export default function PatientsPage() {
                     )}
                   </div>
                 )}
+                {activeTab === 'consents' && (
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                          Signed Digital Consent Forms ({getPatientConsentForms(selectedPatient.id).length})
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Primary consents and procedure-specific consents signed on-screen by patient.
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => setConsentModal(true)}
+                        className="flex items-center justify-center gap-1.5 px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm shrink-0"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Sign New Consent</span>
+                      </button>
+                    </div>
+
+                    {getPatientConsentForms(selectedPatient.id).length === 0 ? (
+                      <div className="py-12 text-center bg-slate-50 rounded-xl border border-slate-200 border-dashed">
+                        <PenTool className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                        <p className="text-xs font-semibold text-slate-700">No Signed Consents Record</p>
+                        <p className="text-[11px] text-slate-400 mt-1 max-w-sm mx-auto">
+                          Click &quot;Sign New Consent&quot; above to capture a Primary Consent or Procedure-Specific Consent with digital patient signature.
+                        </p>
+                      </div>
+                    ) : (
+                      getPatientConsentForms(selectedPatient.id).map((form) => (
+                        <div
+                          key={form.id}
+                          className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-3"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span
+                                  className={cn(
+                                    'text-[10px] font-bold px-2 py-0.5 rounded border',
+                                    form.category === 'Primary Consent'
+                                      ? 'bg-sky-50 border-sky-200 text-sky-700'
+                                      : 'bg-purple-50 border-purple-200 text-purple-700'
+                                  )}
+                                >
+                                  {form.category}
+                                </span>
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center gap-1">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  Digitally Signed
+                                </span>
+                              </div>
+                              <h4 className="text-sm font-semibold text-slate-900 mt-1">{form.title}</h4>
+                            </div>
+
+                            <div className="text-left sm:text-right text-[11px] text-slate-500">
+                              <p>Signed: <strong>{formatDate(form.signedAt)}</strong></p>
+                              <p>Attending: <strong>{form.doctorName}</strong></p>
+                            </div>
+                          </div>
+
+                          <div className="bg-slate-50 rounded-lg p-3 text-xs text-slate-600 leading-relaxed font-mono">
+                            {form.content}
+                          </div>
+
+                          {/* Digital Signature Image Display */}
+                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] font-medium text-slate-500">Patient Digital Signature:</span>
+                              <div className="bg-white border border-slate-200 rounded-lg px-3 py-1 shadow-xs inline-block">
+                                {/* eslint-disable-next-html-link */}
+                                <img
+                                  src={form.signatureDataUrl}
+                                  alt="Patient Digital Signature"
+                                  className="h-9 object-contain max-w-[200px]"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -333,6 +436,15 @@ export default function PatientsPage() {
         onClose={() => setDrawerOpen(false)}
         onPatientCreated={(p) => setSelectedPatient(p)}
       />
+
+      {selectedPatient && (
+        <ConsentFormModal
+          open={consentModal}
+          onClose={() => setConsentModal(false)}
+          patientId={selectedPatient.id}
+          patientName={selectedPatient.name}
+        />
+      )}
     </AppShell>
   );
 }

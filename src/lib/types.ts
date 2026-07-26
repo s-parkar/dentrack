@@ -37,11 +37,40 @@ export interface Patient {
   emergencyRelation?: string;
   bloodGroup: BloodGroup;
   medicalTags: MedicalTag[];
+  medicalNotes?: string;
   teeth: ToothState[];
   referredBy?: string;
   createdAt: string;
   lastVisit?: string;
   photo?: string; // base64 or URL
+}
+
+// ============================================================
+// CONSENT FORMS & DIGITAL SIGNATURES
+// ============================================================
+export type ConsentCategory = 'Primary Consent' | 'Procedure Specific Consent';
+
+export type ProcedureConsentType =
+  | 'General Examination & Local Anesthesia'
+  | 'Root Canal Treatment (RCT)'
+  | 'Tooth Extraction & Oral Surgery'
+  | 'Dental Implant Surgery'
+  | 'Orthodontic Braces & Aligners'
+  | 'Teeth Whitening & Bleaching'
+  | 'Crown, Bridge & Veneer Fitting'
+  | 'Custom Treatment Consent';
+
+export interface SignedConsentForm {
+  id: string;
+  patientId: string;
+  category: ConsentCategory;
+  formType: ProcedureConsentType;
+  title: string;
+  content: string;
+  doctorName: string;
+  signatureDataUrl: string; // Base64 canvas drawing
+  signedAt: string;
+  status: 'Signed' | 'Revoked';
 }
 
 // ============================================================

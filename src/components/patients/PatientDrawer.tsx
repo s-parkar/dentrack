@@ -30,6 +30,7 @@ const EMPTY_FORM = {
   phone: '',
   emergencyContact: '',
   medicalTags: [] as MedicalTag[],
+  medicalNotes: '',
 };
 
 export default function PatientDrawer({ open, onClose, onPatientCreated }: PatientDrawerProps) {
@@ -60,6 +61,7 @@ export default function PatientDrawer({ open, onClose, onPatientCreated }: Patie
       emergencyContact: form.emergencyContact.trim(),
       bloodGroup: 'Unknown',
       medicalTags: form.medicalTags,
+      medicalNotes: form.medicalNotes.trim(),
     });
     setSaving(false);
     setForm(EMPTY_FORM);
@@ -228,6 +230,20 @@ export default function PatientDrawer({ open, onClose, onPatientCreated }: Patie
                 );
               })}
             </div>
+          </div>
+
+          {/* Medical Notes / Additional Details */}
+          <div>
+            <label className="block text-[12px] font-medium text-slate-700 mb-1.5">
+              Medical Notes / Additional Details
+            </label>
+            <textarea
+              rows={3}
+              value={form.medicalNotes}
+              onChange={(e) => setForm({ ...form, medicalNotes: e.target.value })}
+              placeholder="e.g. History of penicillin allergy, previous RCT on Tooth #16, high anxiety during local anesthesia..."
+              className="w-full text-[13px] border border-slate-200 rounded-lg px-3 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 transition-shadow resize-none"
+            />
           </div>
         </div>
 
