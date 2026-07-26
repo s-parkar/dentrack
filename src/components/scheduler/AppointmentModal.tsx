@@ -37,11 +37,21 @@ export default function AppointmentModal({
   onSaveSuccess,
 }: AppointmentModalProps) {
   const { patients, addAppointment, updateAppointment } = useApp();
-  const { user } = useAuth();
+  const { user, usersList } = useAuth();
   const isEdit = !!existingAppointment;
   const isReceptionist = user?.role === 'Receptionist';
 
-  const defaultDoctor = user?.role === 'Doctor' ? user.name : 'Dr. Sarah Jenkins';
+  const availableDoctors = Array.from(
+    new Set([
+      ...(usersList?.filter((u) => u.role === 'Doctor').map((u) => u.name) || []),
+      'Dr. Sarah Jenkins',
+      'Dr. Sneha Rao',
+      'Dr. Karan Malhotra',
+      'Dr. Meera Pillai',
+    ])
+  );
+
+  const defaultDoctor = user?.role === 'Doctor' ? user.name : (availableDoctors[0] || 'Dr. Sarah Jenkins');
 
   const [form, setForm] = useState({
     patientId: '',
@@ -270,7 +280,7 @@ export default function AppointmentModal({
                 onChange={(e) => setForm({ ...form, doctorName: e.target.value })}
                 className="w-full text-[13px] border border-slate-200 rounded-lg px-3 py-2.5 text-slate-900 focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 bg-white transition-shadow"
               >
-                {DOCTORS.map((d) => <option key={d}>{d}</option>)}
+                {availableDoctors.map((d) => <option key={d}>{d}</option>)}
               </select>
             </div>
 

@@ -15,6 +15,7 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
+  usersList: (User & { password?: string })[];
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, pass: string) => { success: boolean; error?: string };
@@ -247,6 +248,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        usersList,
         isAuthenticated: !!user,
         isLoading,
         login,
