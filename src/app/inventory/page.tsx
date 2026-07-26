@@ -1018,43 +1018,86 @@ export default function InventoryPage() {
                       </div>
                     </div>
 
-                    {/* Bottom Footer Row: Quantity & Plus/Minus Stepper */}
-                    <div className="bg-slate-50 border-t border-slate-100 p-3.5 flex items-center justify-between mt-auto">
-                      <div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Quantity</span>
-                        <div className="flex items-baseline gap-1 mt-0.5">
-                          <span className={cn('text-xl font-extrabold', isLow ? 'text-rose-600' : 'text-slate-900')}>
+                    {/* Bottom Footer Row: Quantity & Plus/Minus Stepper + Quick Batch Presets */}
+                    <div className="bg-slate-50 border-t border-slate-100 p-3.5 flex flex-col gap-2.5 mt-auto">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Quantity</span>
+                          <div className="flex items-baseline gap-1 mt-0.5">
+                            <span className={cn('text-xl font-extrabold', isLow ? 'text-rose-600' : 'text-slate-900')}>
+                              {item.quantityOnHand}
+                            </span>
+                            <span className="text-xs font-semibold text-slate-500">{item.unit}s</span>
+                            {isLow && (
+                              <span className="ml-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-100 text-rose-700">
+                                Low
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Standard Stepper Buttons (-1 / +1) */}
+                        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
+                          <button
+                            onClick={() => handleQuickStep(item, -1)}
+                            disabled={item.quantityOnHand <= 0}
+                            className="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 disabled:opacity-30 text-rose-700 flex items-center justify-center font-extrabold text-sm transition-colors"
+                            title="Quick Consume (-1)"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="text-xs font-extrabold text-slate-800 px-1 select-none">
                             {item.quantityOnHand}
                           </span>
-                          <span className="text-xs font-semibold text-slate-500">{item.unit}s</span>
-                          {isLow && (
-                            <span className="ml-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-100 text-rose-700">
-                              Low
-                            </span>
-                          )}
+                          <button
+                            onClick={() => handleQuickStep(item, 1)}
+                            className="w-7 h-7 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center font-extrabold text-sm transition-colors"
+                            title="Quick Restock (+1)"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
 
-                      {/* Stepper Control Buttons (- / +) */}
-                      <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
-                        <button
-                          onClick={() => handleQuickStep(item, -1)}
-                          disabled={item.quantityOnHand <= 0}
-                          className="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 disabled:opacity-30 text-rose-700 flex items-center justify-center font-extrabold text-base transition-colors"
-                          title="Quick Consume (-1)"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="text-xs font-extrabold text-slate-800 px-1 select-none">
-                          {item.quantityOnHand}
-                        </span>
-                        <button
-                          onClick={() => handleQuickStep(item, 1)}
-                          className="w-8 h-8 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center font-extrabold text-base transition-colors"
-                          title="Quick Restock (+1)"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
+                      {/* Quick Batch Presets (+5, +10, -5, +Custom) directly on Card */}
+                      <div className="flex items-center justify-between gap-1 pt-2 border-t border-slate-200/60 text-[10px] font-bold">
+                        <span className="text-slate-400 font-semibold text-[9px] uppercase tracking-wide">Quick Batch:</span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleQuickStep(item, -5)}
+                            disabled={item.quantityOnHand < 5}
+                            className="px-2 py-0.5 rounded-md bg-rose-50 hover:bg-rose-100 disabled:opacity-30 text-rose-700 border border-rose-200 transition-colors"
+                            title="Quick Consume 5"
+                          >
+                            -5
+                          </button>
+                          <button
+                            onClick={() => handleQuickStep(item, 5)}
+                            className="px-2 py-0.5 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition-colors"
+                            title="Quick Add 5"
+                          >
+                            +5
+                          </button>
+                          <button
+                            onClick={() => handleQuickStep(item, 10)}
+                            className="px-2 py-0.5 rounded-md bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 transition-colors"
+                            title="Quick Add 10"
+                          >
+                            +10
+                          </button>
+                          <button
+                            onClick={() => {
+                              const customVal = prompt(`Enter quantity to ADD to ${item.name}:`, '10');
+                              if (customVal && !isNaN(Number(customVal)) && Number(customVal) !== 0) {
+                                handleQuickStep(item, Number(customVal));
+                              }
+                            }}
+                            className="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors"
+                            title="Enter Custom Batch Quantity"
+                          >
+                            +Custom
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
