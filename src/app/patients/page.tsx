@@ -5,11 +5,11 @@ import AppShell from '@/components/layout/AppShell';
 import PatientDrawer from '@/components/patients/PatientDrawer';
 import Odontogram from '@/components/odontogram/Odontogram';
 import { useApp } from '@/lib/store';
-import { Patient, TreatmentPriority, TreatmentItemStatus } from '@/lib/types';
+import { Patient, TreatmentItemStatus } from '@/lib/types';
 import { formatDate } from '@/lib/utils';
 import {
   UserPlus, Search, ChevronRight, AlertCircle, Stethoscope, Phone, X, User,
-  FileText, Pill, Calendar, Upload, Plus, CheckCircle2, Clock
+  ArrowLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,7 +24,7 @@ const TAG_COLORS: Record<string, string> = {
   'Latex Allergy': 'bg-yellow-50 text-yellow-700 border-yellow-200',
 };
 
-type PatientTab = 'info' | 'odontogram' | 'edr' | 'treatment' | 'documents';
+type PatientTab = 'info' | 'odontogram' | 'edr' | 'treatment';
 
 export default function PatientsPage() {
   const { patients, appointments, clinicalRecords, treatmentPlans, updatePatientTeeth, updateTreatmentPlanItem } = useApp();
@@ -58,32 +58,37 @@ export default function PatientsPage() {
       actions={
         <button
           onClick={() => setDrawerOpen(true)}
-          className="flex items-center gap-1.5 px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-[13px] font-medium rounded-lg transition-colors"
+          className="flex items-center gap-1.5 px-3 sm:px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-[13px] font-medium rounded-lg transition-colors shadow-sm"
         >
           <UserPlus className="w-4 h-4" />
-          Add Patient
+          <span className="hidden sm:inline">Add Patient</span>
+          <span className="sm:hidden">Add</span>
         </button>
       }
     >
-      <div className="flex gap-6 h-full" style={{ minHeight: 'calc(100vh - 140px)' }}>
-        {/* Patient List */}
-        <div className="w-80 shrink-0 flex flex-col gap-3">
+      <div className="flex flex-col lg:flex-row gap-6 min-h-[calc(100vh-140px)]">
+        
+        {/* Patient Master List */}
+        <div className={cn(
+          "w-full lg:w-80 shrink-0 flex flex-col gap-3",
+          selectedPatient && "hidden lg:flex"
+        )}>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search patients..."
+              placeholder="Search patients by name or phone..."
               className="w-full text-[13px] border border-slate-200 rounded-lg pl-9 pr-3 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 transition-shadow bg-white"
             />
           </div>
 
-          <div className="flex-1 bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="flex-1 bg-white rounded-xl border border-slate-200 overflow-hidden min-h-[400px]">
             {filtered.length === 0 ? (
               <div className="py-12 text-center text-slate-400 text-sm">No patients found</div>
             ) : (
-              <div className="divide-y divide-slate-50">
+              <div className="divide-y divide-slate-100 max-h-[calc(100vh-230px)] overflow-y-auto">
                 {filtered.map((p) => (
                   <button
                     key={p.id}
@@ -117,10 +122,13 @@ export default function PatientsPage() {
           </div>
         </div>
 
-        {/* Detail Panel */}
-        <div className="flex-1 min-w-0">
+        {/* Patient Detail Panel */}
+        <div className={cn(
+          "flex-1 min-w-0",
+          !selectedPatient && "hidden lg:block"
+        )}>
           {!selectedPatient ? (
-            <div className="h-full flex flex-col items-center justify-center text-center bg-white rounded-xl border border-slate-200 border-dashed">
+            <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center bg-white rounded-xl border border-slate-200 border-dashed p-6">
               <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mb-3">
                 <Stethoscope className="w-6 h-6 text-slate-400" />
               </div>
@@ -130,48 +138,57 @@ export default function PatientsPage() {
               </p>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-slate-200 flex flex-col h-full overflow-hidden">
-              {/* Header */}
-              <div className="flex items-start gap-4 px-6 py-5 border-b border-slate-100">
-                <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
-                  <span className="text-[16px] font-bold text-slate-600">
+            <div className="bg-white rounded-xl border border-slate-200 flex flex-col h-full overflow-hidden shadow-sm">
+              
+              {/* Patient Header */}
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 px-4 sm:px-6 py-4 border-b border-slate-100">
+                <div className="flex items-start gap-3">
+                  <button
+                    onClick={() => setSelectedPatient(null)}
+                    className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors mt-0.5"
+                    title="Back to patient list"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
+                  <div className="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 font-bold text-sm">
                     {selectedPatient.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-[17px] font-semibold text-slate-900">{selectedPatient.name}</h2>
-                    {selectedPatient.medicalTags.map((tag) => (
-                      <span
-                        key={tag}
-                        className={cn('badge text-[10px]', TAG_COLORS[tag] ?? 'bg-slate-100 text-slate-600 border-slate-200')}
-                      >
-                        <AlertCircle className="w-2.5 h-2.5" />
-                        {tag}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-base sm:text-[17px] font-semibold text-slate-900">{selectedPatient.name}</h2>
+                      {selectedPatient.medicalTags.map((tag) => (
+                        <span
+                          key={tag}
+                          className={cn('inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded border', TAG_COLORS[tag] ?? 'bg-slate-100 text-slate-600 border-slate-200')}
+                        >
+                          <AlertCircle className="w-2.5 h-2.5" />
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-4 mt-1 flex-wrap text-xs text-slate-500">
+                      <span className="flex items-center gap-1">
+                        <User className="w-3.5 h-3.5" />
+                        {selectedPatient.age}y · {selectedPatient.gender} · {selectedPatient.bloodGroup}
                       </span>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-4 mt-1">
-                    <span className="flex items-center gap-1 text-[12px] text-slate-500">
-                      <User className="w-3 h-3" />
-                      {selectedPatient.age}y · {selectedPatient.gender} · {selectedPatient.bloodGroup}
-                    </span>
-                    <span className="flex items-center gap-1 text-[12px] text-slate-500">
-                      <Phone className="w-3 h-3" />
-                      {selectedPatient.phone}
-                    </span>
+                      <span className="flex items-center gap-1">
+                        <Phone className="w-3.5 h-3.5" />
+                        {selectedPatient.phone}
+                      </span>
+                    </div>
                   </div>
                 </div>
+
                 <button
                   onClick={() => setSelectedPatient(null)}
-                  className="text-slate-400 hover:text-slate-700 transition-colors"
+                  className="hidden lg:block text-slate-400 hover:text-slate-700 transition-colors p-1"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Navigation Tabs */}
-              <div className="flex border-b border-slate-100 px-6 gap-2">
+              <div className="flex border-b border-slate-100 px-4 sm:px-6 gap-1 overflow-x-auto">
                 {[
                   { id: 'info', label: 'Patient Info' },
                   { id: 'odontogram', label: 'Tooth Chart' },
@@ -182,7 +199,7 @@ export default function PatientsPage() {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as PatientTab)}
                     className={cn(
-                      'px-4 py-3 text-[13px] font-medium border-b-2 transition-colors',
+                      'px-3 sm:px-4 py-3 text-xs sm:text-[13px] font-medium border-b-2 transition-colors shrink-0',
                       activeTab === tab.id
                         ? 'border-sky-500 text-sky-600'
                         : 'border-transparent text-slate-500 hover:text-slate-700'
@@ -193,11 +210,11 @@ export default function PatientsPage() {
                 ))}
               </div>
 
-              {/* Tab Contents */}
-              <div className="flex-1 overflow-y-auto p-6">
+              {/* Tab Content */}
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                 {activeTab === 'info' && (
                   <div className="space-y-5">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       {[
                         { label: 'Phone', value: selectedPatient.phone },
                         { label: 'Emergency Contact', value: selectedPatient.emergencyContact || '—' },
@@ -206,7 +223,7 @@ export default function PatientsPage() {
                         { label: 'Patient ID', value: selectedPatient.patientNumber },
                         { label: 'Address', value: selectedPatient.address || '—' },
                       ].map(({ label, value }) => (
-                        <div key={label} className="bg-slate-50 rounded-xl p-3.5">
+                        <div key={label} className="bg-slate-50 rounded-xl p-3.5 border border-slate-100">
                           <p className="text-[10px] text-slate-400 uppercase tracking-wide font-medium">{label}</p>
                           <p className="text-[13px] font-medium text-slate-900 mt-0.5">{value}</p>
                         </div>
@@ -220,12 +237,14 @@ export default function PatientsPage() {
                       ) : (
                         <div className="space-y-2">
                           {patientAppointments.map((a) => (
-                            <div key={a.id} className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3">
-                              <div className="flex-1">
+                            <div key={a.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                              <div>
                                 <p className="text-[12px] font-medium text-slate-900">{a.procedure}</p>
                                 <p className="text-[11px] text-slate-500">{formatDate(a.date)} · {a.chair}</p>
                               </div>
-                              <span className="badge bg-sky-50 border-sky-200 text-sky-700">{a.status}</span>
+                              <span className="inline-flex self-start sm:self-auto text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">
+                                {a.status}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -235,13 +254,15 @@ export default function PatientsPage() {
                 )}
 
                 {activeTab === 'odontogram' && (
-                  <Odontogram
-                    teeth={selectedPatient.teeth}
-                    onUpdate={(teeth) => {
-                      updatePatientTeeth(selectedPatient.id, teeth);
-                      setSelectedPatient({ ...selectedPatient, teeth });
-                    }}
-                  />
+                  <div className="overflow-x-auto">
+                    <Odontogram
+                      teeth={selectedPatient.teeth}
+                      onUpdate={(teeth) => {
+                        updatePatientTeeth(selectedPatient.id, teeth);
+                        setSelectedPatient({ ...selectedPatient, teeth });
+                      }}
+                    />
+                  </div>
                 )}
 
                 {activeTab === 'edr' && (
@@ -272,11 +293,13 @@ export default function PatientsPage() {
                         <div key={plan.id} className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100">
                           <div className="flex justify-between items-center">
                             <p className="text-[14px] font-semibold text-slate-900">{plan.title}</p>
-                            <span className="badge bg-sky-50 border-sky-200 text-sky-700">₹{plan.totalEstimate.toLocaleString('en-IN')}</span>
+                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">
+                              ₹{plan.totalEstimate.toLocaleString('en-IN')}
+                            </span>
                           </div>
                           <div className="space-y-2">
                             {plan.items.map((item) => (
-                              <div key={item.id} className="bg-white rounded-lg p-3 border border-slate-200 flex justify-between items-center">
+                              <div key={item.id} className="bg-white rounded-lg p-3 border border-slate-200 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
                                 <div>
                                   <p className="text-[12px] font-medium text-slate-900">{item.procedure} {item.toothNumbers.length ? `(Tooth ${item.toothNumbers.join(',')})` : ''}</p>
                                   <p className="text-[11px] text-slate-500">Cost: ₹{item.estimatedCost.toLocaleString('en-IN')}</p>
@@ -284,7 +307,7 @@ export default function PatientsPage() {
                                 <select
                                   value={item.status}
                                   onChange={(e) => updateTreatmentPlanItem(plan.id, item.id, { status: e.target.value as TreatmentItemStatus })}
-                                  className="text-[11px] border border-slate-200 rounded px-2 py-1 bg-white"
+                                  className="text-[11px] border border-slate-200 rounded px-2 py-1 bg-white self-start sm:self-auto"
                                 >
                                   {(['Planned', 'In Progress', 'Completed', 'Declined'] as const).map((s) => (
                                     <option key={s}>{s}</option>
@@ -302,6 +325,7 @@ export default function PatientsPage() {
             </div>
           )}
         </div>
+
       </div>
 
       <PatientDrawer

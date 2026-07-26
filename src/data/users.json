@@ -1,0 +1,42 @@
+[
+  {
+    "id": "usr-doctor-1",
+    "name": "Dr. Sarah Jenkins",
+    "email": "doctor@dentrack.com",
+    "password": "doctor123",
+    "role": "Doctor",
+    "title": "Lead Dentist & Surgeon"
+  },
+  {
+    "id": "usr-doctor-2",
+    "name": "Dr. Sneha Rao",
+    "email": "sneha@dentrack.com",
+    "password": "doctor123",
+    "role": "Doctor",
+    "title": "Senior Dentist & Endodontist"
+  },
+  {
+    "id": "usr-doctor-3",
+    "name": "Dr. Karan Malhotra",
+    "email": "karan@dentrack.com",
+    "password": "doctor123",
+    "role": "Doctor",
+    "title": "Orthodontic Specialist"
+  },
+  {
+    "id": "usr-doctor-4",
+    "name": "Dr. Meera Pillai",
+    "email": "meera@dentrack.com",
+    "password": "doctor123",
+    "role": "Doctor",
+    "title": "Pediatric & Cosmetic Dentist"
+  },
+  {
+    "id": "usr-reception-1",
+    "name": "Alex Rivers",
+    "email": "receptionist@dentrack.com",
+    "password": "reception123",
+    "role": "Receptionist",
+    "title": "Front Desk & Practice Coordinator"
+  }
+]

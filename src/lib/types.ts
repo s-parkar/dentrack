@@ -118,6 +118,8 @@ export type ProcedureType =
 export type AppointmentStatus = 'Scheduled' | 'In-Progress' | 'Completed' | 'Cancelled' | 'No-Show';
 export type Chair = 'Chair A' | 'Chair B' | 'Chair C' | 'Chair D';
 
+export type ApprovalStatus = 'Approved' | 'Pending' | 'Rejected';
+
 export interface Appointment {
   id: string;
   patientId: string;
@@ -131,6 +133,10 @@ export interface Appointment {
   notes: string;
   invoiceId?: string;
   treatmentPlanItemId?: string;
+  approvalStatus?: ApprovalStatus;
+  bookedByRole?: 'Doctor' | 'Receptionist';
+  bookedByName?: string;
+  rejectionReason?: string;
 }
 
 // ============================================================

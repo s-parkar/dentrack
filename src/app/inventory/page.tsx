@@ -233,8 +233,8 @@ export default function InventoryPage() {
         </div>
 
         {/* Inventory Table */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <table className="w-full text-[13px]">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto shadow-sm">
+          <table className="w-full text-[13px] min-w-[800px]">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 {['Item Name', 'Brand', 'Category', 'Stock Level', 'Unit Cost', 'Total Value', 'Location', 'Expiry', 'Actions'].map((h) => (

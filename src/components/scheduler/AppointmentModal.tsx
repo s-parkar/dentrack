@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useApp } from '@/lib/store';
+import { useAuth } from '@/lib/auth';
 import { Appointment, AppointmentStatus, Chair, ProcedureType } from '@/lib/types';
-import { X, CalendarDays, User, Clock } from 'lucide-react';
+import { X, CalendarDays, User, Clock, Shield, UserCheck, AlertCircle } from 'lucide-react';
 import { cn, getTodayString } from '@/lib/utils';
 
 const PROCEDURES: ProcedureType[] = [
@@ -11,8 +12,8 @@ const PROCEDURES: ProcedureType[] = [
   'Crown Placement', 'Extraction', 'Teeth Whitening', 'Orthodontic Review', 'X-Ray', 'Denture Fitting',
 ];
 
-const CHAIRS: Chair[] = ['Chair A', 'Chair B', 'Chair C'];
-const DOCTORS = ['Dr. Sneha Rao', 'Dr. Karan Malhotra', 'Dr. Meera Pillai'];
+const CHAIRS: Chair[] = ['Chair A', 'Chair B', 'Chair C', 'Chair D'];
+const DOCTORS = ['Dr. Sarah Jenkins', 'Dr. Sneha Rao', 'Dr. Karan Malhotra', 'Dr. Meera Pillai'];
 const STATUSES: AppointmentStatus[] = ['Scheduled', 'In-Progress', 'Completed', 'Cancelled', 'No-Show'];
 const DURATIONS = [15, 30, 45, 60, 90, 120];
 
@@ -23,6 +24,7 @@ interface AppointmentModalProps {
   defaultChair?: Chair;
   defaultTime?: string;
   existingAppointment?: Appointment;
+  onSaveSuccess?: (date: string) => void;
 }
 
 export default function AppointmentModal({
@@ -32,14 +34,19 @@ export default function AppointmentModal({
   defaultChair,
   defaultTime,
   existingAppointment,
+  onSaveSuccess,
 }: AppointmentModalProps) {
   const { patients, addAppointment, updateAppointment } = useApp();
+  const { user } = useAuth();
   const isEdit = !!existingAppointment;
+  const isReceptionist = user?.role === 'Receptionist';
+
+  const defaultDoctor = user?.role === 'Doctor' ? user.name : 'Dr. Sarah Jenkins';
 
   const [form, setForm] = useState({
     patientId: '',
     chair: (defaultChair ?? 'Chair A') as Chair,
-    doctorName: 'Dr. Sneha Rao',
+    doctorName: defaultDoctor,
     procedure: 'Consultation' as ProcedureType,
     date: defaultDate ?? getTodayString(),
     startTime: defaultTime ?? '09:00',
@@ -62,14 +69,19 @@ export default function AppointmentModal({
         status: existingAppointment.status,
         notes: existingAppointment.notes,
       });
+    } else if (user?.role === 'Doctor' && user?.name) {
+      setForm((f) => ({ ...f, doctorName: user.name }));
     }
-  }, [existingAppointment]);
+  }, [existingAppointment, user]);
 
   useEffect(() => {
     if (defaultChair) setForm((f) => ({ ...f, chair: defaultChair }));
     if (defaultDate) setForm((f) => ({ ...f, date: defaultDate }));
     if (defaultTime) setForm((f) => ({ ...f, startTime: defaultTime }));
   }, [defaultChair, defaultDate, defaultTime]);
+
+  const isBookingForSelf = user?.role === 'Doctor' && form.doctorName === user.name;
+  const requiresApproval = !isBookingForSelf;
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -85,8 +97,14 @@ export default function AppointmentModal({
     if (isEdit && existingAppointment) {
       updateAppointment(existingAppointment.id, form);
     } else {
-      addAppointment(form);
+      addAppointment({
+        ...form,
+        bookedByRole: user?.role ?? 'Doctor',
+        bookedByName: user?.name ?? 'Staff',
+        approvalStatus: requiresApproval ? 'Pending' : 'Approved',
+      });
     }
+    onSaveSuccess?.(form.date);
     onClose();
   };
 
@@ -117,6 +135,44 @@ export default function AppointmentModal({
 
           {/* Form */}
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+            
+            {/* Role Approval Info Banner */}
+            {!isEdit && (
+              <div
+                className={cn(
+                  'p-3.5 rounded-xl border flex items-start gap-2.5 text-xs',
+                  requiresApproval
+                    ? 'bg-amber-50 border-amber-200 text-amber-900'
+                    : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                )}
+              >
+                {requiresApproval ? (
+                  <>
+                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-amber-900">Approval Required</p>
+                      <p className="text-[11px] text-amber-700 mt-0.5">
+                        {isReceptionist ? (
+                          <>Booked by Receptionist. Submitted as <strong>Pending Request</strong> for {form.doctorName}&apos;s approval.</>
+                        ) : (
+                          <>Booking for <strong>{form.doctorName}</strong>. Since you selected another doctor, a <strong>Pending Request</strong> will be sent to {form.doctorName} for approval.</>
+                        )}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Shield className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-emerald-900">Direct Booking (Auto-Approved)</p>
+                      <p className="text-[11px] text-emerald-700 mt-0.5">
+                        Booking for yourself ({user?.name}). Directly scheduled on your calendar without permission requirements.
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
             {/* Patient */}
             <div>
               <label className="block text-[12px] font-medium text-slate-700 mb-1.5">

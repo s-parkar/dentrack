@@ -101,7 +101,7 @@ export default function RecallsPage() {
     >
       <div className="space-y-4">
         {/* Status filter chips */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button onClick={() => setStatusFilter('')} className={cn('px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-colors', !statusFilter ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50')}>
             All Recalls ({recalls.length})
           </button>
@@ -113,8 +113,8 @@ export default function RecallsPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <table className="w-full text-[13px]">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto shadow-sm">
+          <table className="w-full text-[13px] min-w-[700px]">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 {['Patient', 'Phone', 'Recall Type', 'Due Date', 'Notes', 'Status', 'Update Status'].map((h) => (

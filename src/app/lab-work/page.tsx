@@ -172,8 +172,8 @@ export default function LabWorkPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <table className="w-full text-[13px]">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto shadow-sm">
+          <table className="w-full text-[13px] min-w-[750px]">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 {['WO No.', 'Patient', 'Work Type', 'Lab', 'Teeth', 'Shade', 'Sent', 'Due', 'Status', 'Actions'].map((h) => (

@@ -53,8 +53,8 @@ export default function BillingPage() {
               <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search invoices by INV-number or patient name..." className="w-full text-[13px] border border-slate-200 rounded-lg pl-9 pr-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-sky-100" />
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-              <table className="w-full text-[13px]">
+            <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto shadow-sm">
+              <table className="w-full text-[13px] min-w-[750px]">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
                     {['Invoice No.', 'Date', 'Patient', 'Payment Method', 'Subtotal', 'Tax (18%)', 'Total Amount', 'Status', 'Actions'].map((h) => (
@@ -94,7 +94,7 @@ export default function BillingPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {packages.map((pkg) => (
               <div key={pkg.id} className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
                 <div className="flex justify-between items-start">

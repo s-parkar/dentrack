@@ -44,44 +44,44 @@ export default function AnalyticsPage() {
     >
       <div className="space-y-6">
         {/* Metric Overview Cards */}
-        <div className="grid grid-cols-4 gap-4">
-          <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
+            <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
               <DollarSign className="w-5 h-5 text-green-600" />
             </div>
-            <div>
-              <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Total Revenue</p>
-              <p className="text-[20px] font-bold text-slate-900">₹{totalRevenue.toLocaleString('en-IN')}</p>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide truncate">Total Revenue</p>
+              <p className="text-[20px] font-bold text-slate-900 truncate">₹{totalRevenue.toLocaleString('en-IN')}</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
+            <div className="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center shrink-0">
               <Calendar className="w-5 h-5 text-sky-600" />
             </div>
-            <div>
-              <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Appointments</p>
-              <p className="text-[20px] font-bold text-slate-900">{completedAppointments} / {totalAppointments}</p>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide truncate">Appointments</p>
+              <p className="text-[20px] font-bold text-slate-900 truncate">{completedAppointments} / {totalAppointments}</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
+            <div className="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
               <Users className="w-5 h-5 text-violet-600" />
             </div>
-            <div>
-              <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Registered Patients</p>
-              <p className="text-[20px] font-bold text-slate-900">{activePatients}</p>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide truncate">Registered Patients</p>
+              <p className="text-[20px] font-bold text-slate-900 truncate">{activePatients}</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3 shadow-sm">
+            <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
               <TrendingUp className="w-5 h-5 text-amber-600" />
             </div>
-            <div>
-              <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Avg Revenue / Patient</p>
-              <p className="text-[20px] font-bold text-slate-900">
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide truncate">Avg Revenue / Patient</p>
+              <p className="text-[20px] font-bold text-slate-900 truncate">
                 ₹{activePatients ? Math.round(totalRevenue / activePatients).toLocaleString('en-IN') : 0}
               </p>
             </div>
@@ -89,9 +89,9 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Charts Grid */}
-        <div className="grid grid-cols-5 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
           {/* Revenue Trend SVG Bar Chart */}
-          <div className="col-span-3 bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+          <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 p-5 space-y-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[14px] font-semibold text-slate-900">Monthly Revenue Overview</p>
@@ -120,7 +120,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Procedure Breakdown */}
-          <div className="col-span-2 bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+          <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5 space-y-4 shadow-sm">
             <div>
               <p className="text-[14px] font-semibold text-slate-900">Top Dental Procedures</p>
               <p className="text-[11px] text-slate-500">Most frequent treatments performed</p>

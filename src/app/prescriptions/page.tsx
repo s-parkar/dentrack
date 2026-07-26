@@ -250,8 +250,8 @@ export default function PrescriptionsPage() {
           </select>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <table className="w-full text-[13px]">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto shadow-sm">
+          <table className="w-full text-[13px] min-w-[650px]">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 {['Rx No.', 'Date', 'Patient', 'Doctor', 'Diagnosis', 'Drugs', 'Actions'].map((h) => (

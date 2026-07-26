@@ -45,8 +45,11 @@ interface AppContextValue extends AppState {
   addAppointment: (a: Omit<Appointment, 'id'>) => Appointment;
   updateAppointment: (id: string, updates: Partial<Appointment>) => void;
   deleteAppointment: (id: string) => void;
+  approveAppointment: (id: string) => void;
+  rejectAppointment: (id: string, reason?: string) => void;
   getAppointmentsForDate: (date: string) => Appointment[];
   getPatientAppointments: (patientId: string) => Appointment[];
+  getPendingAppointments: () => Appointment[];
 
   // Invoices
   addInvoice: (inv: Omit<Invoice, 'id' | 'invoiceNumber'>) => Invoice;
@@ -176,10 +179,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // ── Appointments ──────────────────────────────────────────────────────────
   const addAppointment = useCallback((a: Omit<Appointment, 'id'>): Appointment => {
-    const newAppt: Appointment = { ...a, id: generateId('a') };
+    const initialApproval = a.approvalStatus ?? (a.bookedByRole === 'Receptionist' ? 'Pending' : 'Approved');
+    const newAppt: Appointment = { ...a, id: generateId('a'), approvalStatus: initialApproval };
     setState((s) => ({ ...s, appointments: [...s.appointments, newAppt] }));
     const patient = state.patients.find((p) => p.id === a.patientId);
-    addActivity({ type: 'appointment_scheduled', message: `Appointment booked: ${patient?.name ?? '—'} — ${a.procedure}` });
+    if (initialApproval === 'Pending') {
+      addActivity({ type: 'appointment_scheduled', message: `Reception request submitted: ${patient?.name ?? '—'} — ${a.procedure} (Pending Doctor Approval)` });
+    } else {
+      addActivity({ type: 'appointment_scheduled', message: `Appointment scheduled: ${patient?.name ?? '—'} — ${a.procedure}` });
+    }
     return newAppt;
   }, [state.patients, addActivity]);
 
@@ -192,9 +200,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [state.appointments, state.patients, addActivity]);
 
+  const approveAppointment = useCallback((id: string) => {
+    setState((s) => ({
+      ...s,
+      appointments: s.appointments.map((a) => (a.id === id ? { ...a, approvalStatus: 'Approved', status: 'Scheduled' } : a)),
+    }));
+    const appt = state.appointments.find((a) => a.id === id);
+    const patient = state.patients.find((p) => p.id === appt?.patientId);
+    addActivity({ type: 'appointment_scheduled', message: `Doctor APPROVED appointment for ${patient?.name ?? '—'}` });
+  }, [state.appointments, state.patients, addActivity]);
+
+  const rejectAppointment = useCallback((id: string, reason?: string) => {
+    setState((s) => ({
+      ...s,
+      appointments: s.appointments.map((a) => (a.id === id ? { ...a, approvalStatus: 'Rejected', status: 'Cancelled', rejectionReason: reason } : a)),
+    }));
+    const appt = state.appointments.find((a) => a.id === id);
+    const patient = state.patients.find((p) => p.id === appt?.patientId);
+    addActivity({ type: 'appointment_scheduled', message: `Doctor REJECTED appointment request for ${patient?.name ?? '—'}` });
+  }, [state.appointments, state.patients, addActivity]);
+
   const deleteAppointment = useCallback((id: string) => setState((s) => ({ ...s, appointments: s.appointments.filter((a) => a.id !== id) })), []);
   const getAppointmentsForDate = useCallback((date: string) => state.appointments.filter((a) => a.date === date), [state.appointments]);
   const getPatientAppointments = useCallback((patientId: string) => state.appointments.filter((a) => a.patientId === patientId), [state.appointments]);
+  const getPendingAppointments = useCallback(() => state.appointments.filter((a) => a.approvalStatus === 'Pending'), [state.appointments]);
 
   // ── Invoices ──────────────────────────────────────────────────────────────
   const addInvoice = useCallback((inv: Omit<Invoice, 'id' | 'invoiceNumber'>): Invoice => {
@@ -347,7 +376,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const value: AppContextValue = {
     ...state,
     addPatient, updatePatient, updatePatientTeeth, getPatient, deletePatient,
-    addAppointment, updateAppointment, deleteAppointment, getAppointmentsForDate, getPatientAppointments,
+    addAppointment, updateAppointment, deleteAppointment, approveAppointment, rejectAppointment, getAppointmentsForDate, getPatientAppointments, getPendingAppointments,
     addInvoice, updateInvoice, getInvoice, getPatientInvoices,
     addClinicalRecord, updateClinicalRecord, getPatientRecords,
     addTreatmentPlan, updateTreatmentPlan, updateTreatmentPlanItem, getPatientTreatmentPlans,
