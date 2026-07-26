@@ -141,7 +141,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setState(JSON.parse(raw) as AppState);
+      if (raw) {
+        const parsed = JSON.parse(raw) as AppState;
+        setState({
+          ...INITIAL_STATE,
+          ...parsed,
+          consentForms: Array.isArray(parsed.consentForms) ? parsed.consentForms : [],
+          documents: Array.isArray(parsed.documents) ? parsed.documents : [],
+        });
+      }
     } catch { /* ignore */ }
     setHydrated(true);
   }, []);
@@ -383,13 +391,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ── Consent Forms ─────────────────────────────────────────────────────────
   const addSignedConsentForm = useCallback((form: Omit<SignedConsentForm, 'id' | 'signedAt'>): SignedConsentForm => {
     const newForm: SignedConsentForm = { ...form, id: generateId('csnt'), signedAt: new Date().toISOString() };
-    setState((s) => ({ ...s, consentForms: [...s.consentForms, newForm] }));
+    setState((s) => ({ ...s, consentForms: [...(s.consentForms || []), newForm] }));
     const patient = state.patients.find((p) => p.id === form.patientId);
     addActivity({ type: 'record_added', message: `Signed Consent Form (${form.title}) recorded for ${patient?.name ?? 'Patient'}` });
     return newForm;
   }, [state.patients, addActivity]);
 
-  const getPatientConsentForms = useCallback((patientId: string) => state.consentForms.filter((c) => c.patientId === patientId), [state.consentForms]);
+  const getPatientConsentForms = useCallback((patientId: string) => (state.consentForms || []).filter((c) => c.patientId === patientId), [state.consentForms]);
 
   const value: AppContextValue = {
     ...state,
