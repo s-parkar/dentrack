@@ -269,7 +269,7 @@ export interface LabWorkOrder {
 export type InventoryCategory =
   | 'Anesthetics' | 'Restorative' | 'Endodontic' | 'Surgical'
   | 'Orthodontic' | 'Prosthetic' | 'Sterilization' | 'PPE'
-  | 'Impression Materials' | 'Cements' | 'Whitening' | 'Instruments' | 'Consumables';
+  | 'Impression Materials' | 'Cements' | 'Whitening' | 'Instruments' | 'Consumables' | (string & {});
 
 export type InventoryUnit = 'Box' | 'Pack' | 'Bottle' | 'Tube' | 'Piece' | 'Cartridge' | 'Vial' | 'Set' | 'Roll' | 'Bag';
 
