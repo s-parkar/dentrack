@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AppShell from '@/components/layout/AppShell';
 import { useApp } from '@/lib/store';
 import { InventoryCategory, InventoryItem, InventoryUnit } from '@/lib/types';
@@ -52,6 +52,34 @@ function ItemModal({ open, onClose, editItem, categoriesList, onAddCategory }: I
 
   const [isCustomCat, setIsCustomCat] = useState(false);
   const [customCatInput, setCustomCatInput] = useState('');
+
+  // Pre-populate fields when editItem changes or modal opens
+  useEffect(() => {
+    if (editItem) {
+      setForm({
+        name: editItem.name ?? '',
+        brand: editItem.brand ?? '',
+        category: editItem.category ?? ('Restorative' as InventoryCategory),
+        unit: editItem.unit ?? ('Box' as InventoryUnit),
+        quantityOnHand: editItem.quantityOnHand !== undefined ? String(editItem.quantityOnHand) : '',
+        minStockLevel: editItem.minStockLevel !== undefined ? String(editItem.minStockLevel) : '5',
+        reorderLevel: editItem.reorderLevel !== undefined ? String(editItem.reorderLevel) : '10',
+        unitCost: editItem.unitCost !== undefined ? String(editItem.unitCost) : '',
+        expiryDate: editItem.expiryDate ?? '',
+        location: editItem.location ?? '',
+        batchNumber: editItem.batchNumber ?? '',
+        notes: editItem.notes ?? '',
+      });
+      setIsCustomCat(false);
+    } else {
+      setForm({
+        name: '', brand: '', category: 'Restorative' as InventoryCategory,
+        unit: 'Box' as InventoryUnit, quantityOnHand: '', minStockLevel: '5',
+        reorderLevel: '10', unitCost: '', expiryDate: '', location: '', batchNumber: '', notes: '',
+      });
+      setIsCustomCat(false);
+    }
+  }, [editItem, open]);
 
   if (!open) return null;
 
@@ -689,14 +717,15 @@ export default function InventoryPage() {
                   <div
                     key={item.id}
                     className={cn(
-                      'bg-white rounded-2xl border transition-all duration-200 shadow-xs hover:shadow-md flex flex-col justify-between p-4 space-y-3 relative overflow-hidden',
+                      'bg-white rounded-2xl border transition-all duration-200 shadow-2xs hover:shadow-md flex flex-col justify-between overflow-hidden',
                       isLow ? 'border-rose-300 ring-1 ring-rose-200/50' : 'border-slate-200 hover:border-sky-300'
                     )}
                   >
-                    {/* Top Row: Category & Edit Button */}
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1 truncate">
+                    {/* Top Content Body */}
+                    <div className="p-4 space-y-3">
+                      {/* Top Row: Category & Edit Button */}
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1 truncate">
                           <Tag className="w-2.5 h-2.5 text-slate-400 shrink-0" />
                           <span className="truncate">{item.category}</span>
                         </span>
@@ -706,69 +735,80 @@ export default function InventoryPage() {
                             setEditingItem(item);
                             setModalOpen(true);
                           }}
-                          className="p-1 rounded-lg text-slate-400 hover:text-sky-600 hover:bg-slate-100 transition-colors"
+                          className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-sky-600 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors"
                           title="Edit Stock Info"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
+                          <span>Edit</span>
                         </button>
                       </div>
 
-                      <h3 className="text-sm font-bold text-slate-900 leading-snug">{item.name}</h3>
-                      <p className="text-xs text-slate-500 font-medium">{item.brand}</p>
+                      {/* Item Name & Brand */}
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900 leading-snug">{item.name}</h3>
+                        <p className="text-xs text-slate-500 font-medium mt-0.5">{item.brand}</p>
+                      </div>
+
+                      {/* Stock Details Grid */}
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-[11px]">
+                        <div className="bg-slate-50/60 p-2 rounded-lg border border-slate-100">
+                          <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Unit Cost</p>
+                          <p className="font-bold text-slate-800 mt-0.5">₹{item.unitCost}</p>
+                        </div>
+                        <div className="bg-slate-50/60 p-2 rounded-lg border border-slate-100">
+                          <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Total Value</p>
+                          <p className="font-bold text-slate-900 mt-0.5">₹{(item.quantityOnHand * item.unitCost).toLocaleString('en-IN')}</p>
+                        </div>
+                        <div className="bg-slate-50/60 p-2 rounded-lg border border-slate-100">
+                          <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Location</p>
+                          <p className="font-medium text-slate-700 mt-0.5 truncate">{item.location || '—'}</p>
+                        </div>
+                        <div className="bg-slate-50/60 p-2 rounded-lg border border-slate-100">
+                          <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Expiry / Min</p>
+                          <p className="font-medium text-slate-700 mt-0.5 truncate">
+                            {item.expiryDate ? formatDate(item.expiryDate) : `Min ${item.minStockLevel}`}
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Stock Stepper Box (Plus / Minus) */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between">
+                    {/* Bottom Footer Row: Quantity & Plus/Minus Stepper */}
+                    <div className="bg-slate-50 border-t border-slate-100 p-3.5 flex items-center justify-between mt-auto">
                       <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Stock Level</p>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Quantity</span>
                         <div className="flex items-baseline gap-1 mt-0.5">
-                          <span className={cn('text-lg font-extrabold', isLow ? 'text-rose-600' : 'text-slate-900')}>
+                          <span className={cn('text-xl font-extrabold', isLow ? 'text-rose-600' : 'text-slate-900')}>
                             {item.quantityOnHand}
                           </span>
-                          <span className="text-xs text-slate-500 font-medium">{item.unit}s</span>
+                          <span className="text-xs font-semibold text-slate-500">{item.unit}s</span>
+                          {isLow && (
+                            <span className="ml-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-100 text-rose-700">
+                              Low
+                            </span>
+                          )}
                         </div>
                       </div>
 
-                      {/* STEPPER BUTTONS */}
-                      <div className="flex items-center gap-1.5 bg-white p-1 rounded-lg border border-slate-200 shadow-2xs">
+                      {/* Stepper Control Buttons (- / +) */}
+                      <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
                         <button
                           onClick={() => handleQuickStep(item, -1)}
                           disabled={item.quantityOnHand <= 0}
-                          className="w-7 h-7 rounded-md bg-rose-50 hover:bg-rose-100 disabled:opacity-30 text-rose-700 flex items-center justify-center font-bold text-sm transition-colors"
+                          className="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 disabled:opacity-30 text-rose-700 flex items-center justify-center font-extrabold text-base transition-colors"
                           title="Quick Consume (-1)"
                         >
-                          <Minus className="w-3.5 h-3.5" />
+                          <Minus className="w-4 h-4" />
                         </button>
-                        <span className="text-xs font-semibold text-slate-700 px-1 select-none">
+                        <span className="text-xs font-extrabold text-slate-800 px-1 select-none">
                           {item.quantityOnHand}
                         </span>
                         <button
                           onClick={() => handleQuickStep(item, 1)}
-                          className="w-7 h-7 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm transition-colors"
+                          className="w-8 h-8 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center font-extrabold text-base transition-colors"
                           title="Quick Restock (+1)"
                         >
-                          <Plus className="w-3.5 h-3.5" />
+                          <Plus className="w-4 h-4" />
                         </button>
-                      </div>
-                    </div>
-
-                    {/* Card Footer Details */}
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-                      <div>
-                        <p>Unit Cost: <strong className="text-slate-800">₹{item.unitCost}</strong></p>
-                        <p>Value: <strong className="text-slate-900">₹{(item.quantityOnHand * item.unitCost).toLocaleString('en-IN')}</strong></p>
-                      </div>
-
-                      <div className="text-right">
-                        {item.location && (
-                          <p className="flex items-center gap-1 justify-end text-slate-600">
-                            <MapPin className="w-3 h-3 text-slate-400" />
-                            {item.location}
-                          </p>
-                        )}
-                        {item.expiryDate && (
-                          <p className="text-[10px] text-slate-400 mt-0.5">Exp: {formatDate(item.expiryDate)}</p>
-                        )}
                       </div>
                     </div>
                   </div>
