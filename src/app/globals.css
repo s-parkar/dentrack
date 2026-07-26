@@ -1,36 +1,73 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Brand colors */
-  --color-background: #F8FAFC;
+  /* User Custom Color Palette Tokens */
+  --color-primary: #9B86C4;
+  --color-primary-hover: #8670B2;
+  --color-primary-light: #F0ECF7;
+  
+  --color-mint: #80BCA3;
+  --color-mint-hover: #6AA88E;
+  --color-mint-light: #E8F4EE;
+
+  /* Surfaces & Backgrounds */
+  --color-background: #F4F2F9;
   --color-surface: #FFFFFF;
-  --color-surface-alt: #F1F5F9;
+  --color-surface-alt: #F4F2F9;
 
-  /* Text */
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #64748B;
-  --color-text-muted: #94A3B8;
+  /* Text Colors */
+  --color-text-primary: #23212C;
+  --color-text-secondary: #676278;
+  --color-text-muted: #676278;
 
-  /* Borders */
-  --color-border: #E2E8F0;
-  --color-border-strong: #CBD5E1;
+  /* Borders & Dividers */
+  --color-border: #E3DFEE;
+  --color-border-strong: #CFC7DF;
 
-  /* Accent */
-  --color-medical-cyan: #0284C7;
-  --color-medical-cyan-light: #E0F2FE;
-  --color-forest-green: #16A34A;
-  --color-forest-green-light: #DCFCE7;
-  --color-muted-amber: #D97706;
-  --color-muted-amber-light: #FEF3C7;
-  --color-medical-rose: #E11D48;
-  --color-medical-rose-light: #FFE4E6;
+  /* Sky Palette Override -> Soft Lilac (#9B86C4) */
+  --color-sky-50: #F4F2F9;
+  --color-sky-100: #EADFF7;
+  --color-sky-200: #E3DFEE;
+  --color-sky-300: #C5B5E0;
+  --color-sky-400: #AF9CD2;
+  --color-sky-500: #9B86C4;
+  --color-sky-600: #9B86C4;
+  --color-sky-700: #8670B2;
+  --color-sky-800: #6F5A9A;
+  --color-sky-900: #56447C;
+  --color-sky-950: #362A52;
 
-  /* Sidebar */
-  --color-sidebar-bg: #0F172A;
-  --color-sidebar-text: #94A3B8;
-  --color-sidebar-active: #F8FAFC;
+  /* Emerald Palette Override -> Eucalyptus Mint (#80BCA3) */
+  --color-emerald-50: #E8F4EE;
+  --color-emerald-100: #D1E9DD;
+  --color-emerald-200: #B8DEC9;
+  --color-emerald-300: #9DCFA8;
+  --color-emerald-400: #80BCA3;
+  --color-emerald-500: #80BCA3;
+  --color-emerald-600: #80BCA3;
+  --color-emerald-700: #6AA88E;
+  --color-emerald-800: #548E77;
+  --color-emerald-900: #3E6E5B;
 
-  /* Fonts — loaded via next/font/google in layout.tsx */
+  /* Slate Palette Override -> Deep Slate (#23212C) & Dusk Gray (#676278) & Soft Lavender Gray (#E3DFEE) */
+  --color-slate-950: #17151F;
+  --color-slate-900: #23212C;
+  --color-slate-800: #322E3E;
+  --color-slate-700: #423E50;
+  --color-slate-600: #544F63;
+  --color-slate-500: #676278;
+  --color-slate-400: #8E889F;
+  --color-slate-300: #B7B2C7;
+  --color-slate-200: #E3DFEE;
+  --color-slate-100: #F4F2F9;
+  --color-slate-50: #FAF9FC;
+
+  /* Sidebar styling */
+  --color-sidebar-bg: #23212C;
+  --color-sidebar-text: #8E889F;
+  --color-sidebar-active: #9B86C4;
+
+  /* Fonts */
   --font-sans: var(--font-inter, "system-ui", sans-serif);
 }
 
@@ -42,24 +79,24 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #F8FAFC;
-  color: #0F172A;
+  background-color: #F4F2F9;
+  color: #23212C;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+::-webkit-scrollbar-thumb { background: #E3DFEE; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9B86C4; }
 
 /* Print styles */
 @media print {
   .no-print { display: none !important; }
   .print-only { display: block !important; }
-  body { background: white; }
+  body { background: white; color: black; }
 }
 
 .print-only { display: none; }
@@ -70,14 +107,14 @@ html, body {
 }
 .tooth-cell:hover {
   transform: scale(1.08);
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  filter: drop-shadow(0 2px 4px rgba(155,134,196,0.25));
   cursor: pointer;
 }
 
 /* Calendar slot hover */
 .calendar-slot:hover {
-  background-color: #EFF6FF;
-  border-color: #93C5FD;
+  background-color: #F4F2F9;
+  border-color: #E3DFEE;
   cursor: pointer;
 }
 
