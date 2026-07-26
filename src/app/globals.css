@@ -1,71 +1,70 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* User Custom Color Palette Tokens */
-  --color-primary: #9B86C4;
-  --color-primary-hover: #8670B2;
-  --color-primary-light: #F0ECF7;
+  /* User Specified Icy Pastel Lilac & Cool Slate Indigo Palette */
+  --color-primary-lilac: #E8E8FA;
+  --color-primary-accent: #4C4C7D;
+  --color-primary-accent-hover: #3B3B66;
   
-  --color-mint: #80BCA3;
-  --color-mint-hover: #6AA88E;
-  --color-mint-light: #E8F4EE;
+  --color-ocean-mint: #D0EBE8;
+  --color-ocean-mint-dark: #377E77;
 
   /* Surfaces & Backgrounds */
-  --color-background: #F4F2F9;
-  --color-surface: #FFFFFF;
-  --color-surface-alt: #F4F2F9;
+  --color-background: #F5F6FC;     /* Frost Ice White */
+  --color-surface: #FFFFFF;        /* Pure Snow White */
+  --color-surface-alt: #EFEFF9;
 
   /* Text Colors */
-  --color-text-primary: #23212C;
-  --color-text-secondary: #676278;
-  --color-text-muted: #676278;
+  --color-text-primary: #232536;    /* Midnight Slate */
+  --color-text-secondary: #505268;
+  --color-text-muted: #797B94;
 
   /* Borders & Dividers */
-  --color-border: #E3DFEE;
-  --color-border-strong: #CFC7DF;
+  --color-border: #E1E2F2;
+  --color-border-strong: #C8CAE5;
 
-  /* Sky Palette Override -> Soft Lilac (#9B86C4) */
-  --color-sky-50: #F4F2F9;
-  --color-sky-100: #EADFF7;
-  --color-sky-200: #E3DFEE;
-  --color-sky-300: #C5B5E0;
-  --color-sky-400: #AF9CD2;
-  --color-sky-500: #9B86C4;
-  --color-sky-600: #9B86C4;
-  --color-sky-700: #8670B2;
-  --color-sky-800: #6F5A9A;
-  --color-sky-900: #56447C;
-  --color-sky-950: #362A52;
+  /* Sky Palette Override -> Primary Accent Cool Slate Indigo (#4C4C7D) & Icy Pastel Lilac (#E8E8FA) */
+  --color-sky-50: #F5F6FC;
+  --color-sky-100: #E8E8FA;  /* Icy Pastel Lilac */
+  --color-sky-200: #D4D4F4;
+  --color-sky-300: #B2B2E6;
+  --color-sky-400: #7E7EB9;
+  --color-sky-500: #4C4C7D;  /* Cool Slate Indigo Accent */
+  --color-sky-600: #4C4C7D;  /* Cool Slate Indigo Primary CTA */
+  --color-sky-700: #3B3B66;
+  --color-sky-800: #2C2C50;
+  --color-sky-900: #232536;  /* Midnight Slate */
+  --color-sky-950: #151624;
 
-  /* Emerald Palette Override -> Eucalyptus Mint (#80BCA3) */
-  --color-emerald-50: #E8F4EE;
-  --color-emerald-100: #D1E9DD;
-  --color-emerald-200: #B8DEC9;
-  --color-emerald-300: #9DCFA8;
-  --color-emerald-400: #80BCA3;
-  --color-emerald-500: #80BCA3;
-  --color-emerald-600: #80BCA3;
-  --color-emerald-700: #6AA88E;
-  --color-emerald-800: #548E77;
-  --color-emerald-900: #3E6E5B;
+  /* Emerald Palette Override -> Icy Ocean Mint (#D0EBE8) */
+  --color-emerald-50: #F2FAF9;
+  --color-emerald-100: #E3F4F2;
+  --color-emerald-200: #D0EBE8;  /* Icy Ocean Mint */
+  --color-emerald-300: #9ED8D2;
+  --color-emerald-400: #6BC2B9;
+  --color-emerald-500: #459E95;
+  --color-emerald-600: #377E77;
+  --color-emerald-700: #2A615B;
+  --color-emerald-800: #1E4642;
+  --color-emerald-900: #142E2C;
 
-  /* Slate Palette Override -> Deep Slate (#23212C) & Dusk Gray (#676278) & Soft Lavender Gray (#E3DFEE) */
-  --color-slate-950: #17151F;
-  --color-slate-900: #23212C;
-  --color-slate-800: #322E3E;
-  --color-slate-700: #423E50;
-  --color-slate-600: #544F63;
-  --color-slate-500: #676278;
-  --color-slate-400: #8E889F;
-  --color-slate-300: #B7B2C7;
-  --color-slate-200: #E3DFEE;
-  --color-slate-100: #F4F2F9;
-  --color-slate-50: #FAF9FC;
+  /* Slate Palette Override -> Midnight Slate (#232536) & Frost Ice White (#F5F6FC) */
+  --color-slate-950: #151624;
+  --color-slate-900: #232536;  /* Midnight Slate Headings & Body Text */
+  --color-slate-800: #35384F;
+  --color-slate-700: #434661;
+  --color-slate-600: #505268;
+  --color-slate-500: #646782;
+  --color-slate-400: #8E90AB;
+  --color-slate-300: #C8CAE5;
+  --color-slate-200: #E1E2F2;  /* Soft Divider Line */
+  --color-slate-100: #EFEFF9;
+  --color-slate-50: #F5F6FC;   /* Frost Ice White Page Background */
 
   /* Sidebar styling */
-  --color-sidebar-bg: #23212C;
-  --color-sidebar-text: #8E889F;
-  --color-sidebar-active: #9B86C4;
+  --color-sidebar-bg: #232536;
+  --color-sidebar-text: #8E90AB;
+  --color-sidebar-active: #4C4C7D;
 
   /* Fonts */
   --font-sans: var(--font-inter, "system-ui", sans-serif);
@@ -79,8 +78,8 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #F4F2F9;
-  color: #23212C;
+  background-color: #F5F6FC;
+  color: #232536;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -89,8 +88,8 @@ html, body {
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #E3DFEE; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #9B86C4; }
+::-webkit-scrollbar-thumb { background: #C8CAE5; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #4C4C7D; }
 
 /* Print styles */
 @media print {
@@ -107,14 +106,14 @@ html, body {
 }
 .tooth-cell:hover {
   transform: scale(1.08);
-  filter: drop-shadow(0 2px 4px rgba(155,134,196,0.25));
+  filter: drop-shadow(0 2px 4px rgba(76,76,125,0.25));
   cursor: pointer;
 }
 
 /* Calendar slot hover */
 .calendar-slot:hover {
-  background-color: #F4F2F9;
-  border-color: #E3DFEE;
+  background-color: #F5F6FC;
+  border-color: #E8E8FA;
   cursor: pointer;
 }
 
