@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Brand colors */
+  --color-background: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F1F5F9;
+
+  /* Text */
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+
+  /* Borders */
+  --color-border: #E2E8F0;
+  --color-border-strong: #CBD5E1;
+
+  /* Accent */
+  --color-medical-cyan: #0284C7;
+  --color-medical-cyan-light: #E0F2FE;
+  --color-forest-green: #16A34A;
+  --color-forest-green-light: #DCFCE7;
+  --color-muted-amber: #D97706;
+  --color-muted-amber-light: #FEF3C7;
+  --color-medical-rose: #E11D48;
+  --color-medical-rose-light: #FFE4E6;
+
+  /* Sidebar */
+  --color-sidebar-bg: #0F172A;
+  --color-sidebar-text: #94A3B8;
+  --color-sidebar-active: #F8FAFC;
+
+  /* Fonts — loaded via next/font/google in layout.tsx */
+  --font-sans: var(--font-inter, "system-ui", sans-serif);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #F8FAFC;
+  color: #0F172A;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* Print styles */
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  body { background: white; }
+}
+
+.print-only { display: none; }
+
+/* Tooth chart transitions */
+.tooth-cell {
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+.tooth-cell:hover {
+  transform: scale(1.08);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  cursor: pointer;
+}
+
+/* Calendar slot hover */
+.calendar-slot:hover {
+  background-color: #EFF6FF;
+  border-color: #93C5FD;
+  cursor: pointer;
+}
+
+/* Status badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid;
+  white-space: nowrap;
+}
