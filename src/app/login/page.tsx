@@ -14,10 +14,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // If already logged in, redirect to home
-  if (user) {
-    router.push('/');
-  }
+  React.useEffect(() => {
+    if (user) {
+      router.push('/');
+    }
+  }, [user, router]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

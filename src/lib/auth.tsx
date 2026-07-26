@@ -116,12 +116,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (savedUserRaw) {
           setUser(JSON.parse(savedUserRaw));
         } else {
-          // Default to Doctor if first visit for seamless experience
-          setUser(baseUsers[0]);
-          localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(baseUsers[0]));
+          setUser(null);
         }
       } catch {
-        setUser(baseUsers[0]);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
